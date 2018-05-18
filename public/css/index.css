@@ -1,0 +1,88 @@
+:root {
+  --corTime1: #3F51B5;
+  --corTime2: #F44336;
+}
+
+* {
+	margin: 0;
+    border: 0;
+    padding: 0;
+    font-family: quicksand;
+}
+
+#feed {
+	position: fixed;
+    opacity: .5;
+    font-size: .9em;
+    user-select: none;
+    cursor: default;
+}
+
+#feed ul {
+	list-style: none;
+	overflow: hidden;
+	max-height: 200px;
+}
+
+#feed li {
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+#feed li span {
+	font-weight: bold;
+}
+
+#feed li .time1 {
+	color: var(--corTime1)
+}
+
+#feed li .time2 {
+	color: var(--corTime2)
+}
+
+#xp {
+    position: fixed;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    width: 250px;
+    margin: auto;
+    background: rgba(0,0,0,.15);
+    border-radius: 3px;
+    color: white;
+    font-size: .8em;
+    user-select: none;
+    cursor: default;
+}
+
+#xp .container {
+    display: flex;
+	justify-content: space-between;
+	align-items: center;
+	position: relative;
+}
+
+#xp .label {
+	position: relative;
+	z-index: 2;
+	padding: 5px 8px;
+}
+
+#xp .barra {
+	position: absolute;
+	z-index: 1;
+    background: #00A8FF;
+    border-radius: 3px;
+    widows: 50%;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transition: .3s ease;
+}
+
+#xp .qtd {
+	position: relative;
+	z-index: 2;
+	margin-right: 8px;
+}
