@@ -20,8 +20,10 @@ function Player(x, y) {
 
 		push();
 		noStroke();
-		fill('#8BC34A99');
-		rect(this.pos.x - this.r, this.pos.y + this.r*1.5, this.r*2*this.life/100, this.r/4);
+		fill('#65656755');
+		rect(this.pos.x - this.r, this.pos.y + this.r*1.5, this.r*2, this.r/3);
+		fill(lerpColor(color('#8BC34A'), color('#ef070e'), 1-this.life/100));
+		rect(this.pos.x - this.r, this.pos.y + this.r*1.5, this.r*2*this.life/100, this.r/3);
 
 		translate(this.pos.x, this.pos.y);
 		rotate(this.angle);
@@ -35,7 +37,7 @@ function Player(x, y) {
 		ellipse(0, 0, this.r*2-this.b, this.r*2-this.b);
 
 		fill(times[this.time].cor);
-		// strokeWeight(2);
+		strokeWeight(2);
 		noStroke();
 		rotate(90/180*PI);
 		translate(0, 0 - this.r*1.3);
@@ -47,6 +49,8 @@ function Player(x, y) {
 
 	this.update = function() {
 		this.move();
+		// vel = this.vel.copy();
+		// if (this.torre!==false && this.repulse==false) vel.mult(-1);
 		this.pos.add(this.vel);
 		this.rotate();
 		this.overlap();
@@ -138,19 +142,19 @@ function Player(x, y) {
 			}
 		}
 
-		// p = places[this.place];
+		for (var i = 0; i < torres.length; i++) {
+			t = torres[i];
 
-		// if (this.pos.x+this.r > p.w)
-		// 	this.vel.x = lerp(this.vel.x, -this.velocity*2.5, 0.1);
-		
-		// if (this.pos.x-this.r < p.pos.x) 
-		// 	this.vel.x = lerp(this.vel.x, this.velocity*2.5, 0.1);
+			distancia = dist(this.pos.x, this.pos.y, t.pos.x, t.pos.y);
 
-		// if (this.pos.y+this.r > p.h)
-		// 	this.vel.y = lerp(this.vel.y, -this.velocity*2.5, 0.1);
-		
-		// if (this.pos.y-this.r < p.pos.y) 
-		// 	this.vel.y = lerp(this.vel.y, this.velocity*2.5, 0.1);
+			if (distancia<this.r+t.r) {
+				// force = this.vel.copy();
+				// force.mult(-2.25);
+				// this.vel.add(force);
+				this.vel.mult(-1.25)
+				break;
+			}
+		}
 	}
 }
 
@@ -395,7 +399,7 @@ function Base(x, y, letra) {
 	this.qtd = 0;
 	this.overlap = false;
 	this.cor = 'rgba(255,255,255,0.3)';
-	this.corMapa = 'rgba(255,255,255,0.3)';
+	this.corMapa = 'rgba(0,0,0,0.3)';
 	this.maximo = 1000;
 
 	this.draw = function() {
@@ -406,8 +410,8 @@ function Base(x, y, letra) {
 			rotate(-90/180*PI);
 			noFill();
 
-			this.cor = 'rgba(255,255,255,0.3)';
-			this.corMapa = 'rgba(255,255,255,0.3)';
+			this.cor = 'rgba(0,0,0,0.3)';
+			this.corMapa = 'rgba(0,0,0,0.3)';
 			if (this.possuido[0]>0) {
 				this.cor = times[0].cor
 				tempPossuido = this.possuido[0];
@@ -436,7 +440,7 @@ function Base(x, y, letra) {
 		pop();
 
 		noFill();
-		stroke('rgba(0,0,0,.3)');
+		stroke(this.corMapa);
 		strokeWeight(3);
 		// fill('rgba(0,0,0,.3)');
 		textFont('quicksand');
@@ -529,8 +533,8 @@ function Mapa(w, h) {
 	// console.log(zoom);
 	this.s = this.w*0.025/109/mapaIncrease;
 	this.h = h;
-	this.x = player.pos.x + width/2 - this.w - 20*zoom;
-	this.y = player.pos.y + height/2 - this.w - 20*zoom
+	this.x = player.pos.x + width/2/zoom - (this.w + 20);
+	this.y = player.pos.y + height/2/zoom - (this.w + 20);
 
 	this.draw= function() {
 		push();
@@ -572,5 +576,131 @@ function Mapa(w, h) {
 		strokeWeight(2);
 		point(player.pos.x*this.s, player.pos.y*this.s);
 		pop();
+	}
+}
+
+function Torre(id, x, y) {
+	this.id = id;
+	this.life = 200;
+	this.pos = createVector(x, y);
+	this.time = 1;
+	this.angle = 0;
+	this.cor = "#bbb";
+	this.corTime = 245;
+	this.r = 30;
+	this.player = null;
+	this.raioBusca = 8*ladrilho;
+	this.mostrar = false;
+	this.cadenciaMin = 30;
+	this.cadencia = 0;
+	this.pers = [];
+
+	this.draw = function() {
+		push();
+
+		translate(this.pos.x, this.pos.y);
+		rotate(this.angle-HALF_PI);
+		
+		fill(this.time<0?this.cor:times[this.time].cor);
+		noStroke();
+		beginShape();
+		vertex(-this.r/1.75, 0);
+		vertex(this.r/1.75, 0);
+		vertex(this.r/3, this.r*1.5);
+		vertex(-this.r/3, this.r*1.5);
+		endShape(CLOSE);
+		ellipse(0, 0, this.r*2);
+		fill(this.corTime);
+		ellipse(0, 0, this.r);
+
+		noFill();
+		strokeWeight(3);
+		// stroke('rgba(0,0,0,.3)');
+		// arc(0, 0, this.r*2, this.r*2, 0, TWO_PI);
+		stroke(lerpColor(color('#8BC34A'), color('#ef070e'), 1-this.life/200));
+		arc(0, 0, this.r*0.5, this.r*0.5, 0, TWO_PI*this.life/200);
+
+		if (this.mostrar) {
+			strokeWeight(1);
+			stroke('#ef070e');
+			noFill();
+			ellipse(0, 0, this.raioBusca*2);
+		}
+
+		pop();
+	}
+
+	this.update = function() {
+		if (this.player==null) {
+			this.busca();
+		} else {
+			// seguir e atirar
+			this.seguir();
+			if (this.cadencia>=this.cadenciaMin) {
+				this.atirar();
+				this.cadencia=0;
+			} else this.cadencia++;
+		}
+
+		for (var i in this.pers) {
+			this.pers[i].draw();
+		}
+	}
+
+	this.seguir = function() {
+		this.angle = atan2(this.player.y - this.pos.y, this.player.x - this.pos.x);
+
+		if (dist(this.player.x, this.player.y, this.pos.x, this.pos.y)>this.raioBusca+adv.r) {
+			// console.log('saiu');
+			this.player = null;
+		}
+	}
+
+	this.atirar = function() {
+		this.pers.push(new Perseguidor(this.pos.x, this.pos.y+this.r*2, this.player, this.angle));
+	}
+
+	this.busca = function() {
+		for (var i in adversarios) {
+			adv = adversarios[i];
+
+			if (dist(adv.pos.x, adv.pos.y, this.pos.x, this.pos.y)<this.raioBusca+adv.r) {
+				this.player = adv.pos;
+				data = {
+					torre: this.id,
+					player: adv.id
+				}
+				socket.emit('torreUpdate', data);
+				break;
+			}
+		}
+	}
+}
+
+function Perseguidor(x, y, player, angle) {
+	this.pos = createVector(x, y);
+	this.player = player;
+	this.vel;
+	this.angle = angle;
+	this.r = 5;
+
+	this.draw = function() {
+		push();
+
+		translate(this.pos.x, this.pos.y);
+		rotate(this.angle);
+		fill('red');
+		noStroke();
+		triangle(0, -this.r, this.r, this.r, -this.r, this.r);
+
+		pop();
+	}
+
+	this.update = function() {
+		// dx = mouseX - x;
+		// dy = mouseY - y;
+		// angle1 = atan2(dy, dx);
+		// x = mouseX - (cos(angle1) * segLength);
+		// y = mouseY - (sin(angle1) * segLength);
 	}
 }

@@ -1,5 +1,6 @@
 var jogadores = {};
 var bases = {};
+var torres = {};
 var time = 0;
 var placar = [0, 0];
 
@@ -18,6 +19,11 @@ function Base(letra, times, possuido) {
 	this.letra = letra;
 	this.times = times;
 	this.possuido = possuido;
+}
+
+function Torre(id, player) {
+	this.id = id;
+	this.player = player;
 }
 
 // Using express: http://expressjs.com/
@@ -40,6 +46,10 @@ function listen() {
 	bases['C'] = new Base("C", {0: [], 1: []}, {0: 0, 1: 0});
 	bases['D'] = new Base("D", {0: [], 1: []}, {0: 0, 1: 0});
 	bases['E'] = new Base("E", {0: [], 1: []}, {0: 0, 1: 0});
+
+	for (var i = 0; i < 4; i++) {
+		torres[i] = new Torre(i, null);
+	}
 }
 
 app.use(express.static('public'));
@@ -105,6 +115,13 @@ io.sockets.on('connection',
 	    socket.on('atingiu', function(data) {
 	    	var j = jogadores[data.player];
 	    	j.life -= data.dano;
+	    });
+
+	    socket.on('torreUpdate', function(data) {
+	    	// console.log(torres);
+	    	torres[data.torre].player = data.player;
+
+	    	socket.broadcast.emit('torreUpdate', {id: data.id, player: data.player});
 	    });
 
 	    socket.on('disconnect', function() {

@@ -2,12 +2,13 @@ var socket;
 
 var w = 87, a = 65, d = 68, s = 83;
 var posX = 0, posY = 0;
-var bolas = [];
 var linha = 0;
 var temp = true;
+var bolas = [];
 var places = [];
 var paredes = []
 var bases = [];
+var torres = [];
 var fontes = {};
 var ladrilho = 40;
 var adversarios = {};
@@ -93,7 +94,7 @@ function setup() {
 
 	socket = io.connect("http://192.168.1.107:3000");
 
-	player = new Player(52*ladrilho*mapaIncrease, 52*ladrilho*mapaIncrease);
+	player = new Player(52*ladrilho*mapaIncrease, 42*ladrilho*mapaIncrease);
 
 	data = {
 		x: player.pos.x,
@@ -109,7 +110,7 @@ function setup() {
 	posY = height/2;
 	
 	criarCenario();
-	zoom = width/1366;
+	zoom = height/672;
 	mapa = new Mapa(width*10/100, height*10/100);
 
 	// eventos do socket
@@ -150,6 +151,15 @@ function setup() {
 		adversarios[data.dono].balas.push(new Bala(data.dono, data.x, data.y, data.angle));
 		// console.log(data);
 	});
+
+	socket.on('torreUpdate', function(data) {
+		for (var i in torres) {
+			if (data.id==torres[i].id) {
+				torres[i].player = adversarios[data.id];
+				break;
+			}
+		}
+	});
 }
 
 function draw() {
@@ -188,17 +198,24 @@ function draw() {
 			adversarios[key].update();
 		}
 		else if (key!=player.id) player.time = adversarios[key].time;
-		// console.log(i)
+	}
+
+	// TORRES
+	for (var key in torres) {
+		torres[key].draw();
+		torres[key].update();
 	}
 
 	// player
 	player.draw();
 	player.update();
 
+	// line(player.pos.x-1366/2, player.pos.y, player.pos.x+1366/2, player.pos.y);
+	// point(player.pos.x-1366/2, player.pos.y);
+	// point(player.pos.x+1366/2, player.pos.y);
+
 	//MAP
 	mapa.draw();
-
-	// line(player.pos.x-1366/2, player.pos.y, player.pos.x+1366/2, player.pos.y);
 
 	temp = false;
 }
@@ -251,6 +268,8 @@ function criarCenario() {
 	bases.push(new Base(96.5*ladrilho, 96.5*ladrilho, 'D'));
 	bases.push(new Base(54.5*ladrilho, 54.5*ladrilho, 'E'));
 
+	torres.push(new Torre(0, 54.5*ladrilho, 42*ladrilho));
+
 	ajustarTam();
 }
 
@@ -274,6 +293,11 @@ function ajustarTam(tam) {
 		paredes[i].pos.y *= mapaIncrease;
 		paredes[i].fim.x *= mapaIncrease;
 		paredes[i].fim.y *= mapaIncrease;
+	}
+
+	for (var key in torres) {
+		torres[key].pos.x *= 2;
+		torres[key].pos.y *= 2;
 	}
 }
 
