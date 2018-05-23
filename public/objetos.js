@@ -212,14 +212,6 @@ function Adversario(x, y, time, life, angle, id) {
 			teste = this.balas[i].overlap();
 			teste2 = this.balas[i].atingiu();
 
-			// if (teste2!=false) {
-			// 	var data = {
-			// 	    player: teste2,
-			// 	    dano: this.balas[i].dano
-			// 	  };
-			// 	  socket.emit('atingiu', data);
-			// }
-
 			if (this.balas[i].time<=0 || teste || teste2!=false) this.balas.splice(i, 1);
 		}
 	}
@@ -591,17 +583,24 @@ function Torre(id, x, y) {
 	this.player = null;
 	this.raioBusca = 8*ladrilho;
 	this.mostrar = false;
-	this.cadenciaMin = 30;
+	this.cadenciaMin = 60;
 	this.cadencia = 0;
 	this.pers = [];
+	this.teste = false;
+	this.tiroCor;
 
 	this.draw = function() {
+		for (var i in this.pers) {
+			this.pers[i].draw();
+		}
+
+
 		push();
 
 		translate(this.pos.x, this.pos.y);
 		rotate(this.angle-HALF_PI);
-		
-		fill(this.time<0?this.cor:times[this.time].cor);
+		this.tiroCor = this.time<0?this.cor:times[this.time].cor;
+		fill(this.tiroCor);
 		noStroke();
 		beginShape();
 		vertex(-this.r/1.75, 0);
@@ -617,6 +616,7 @@ function Torre(id, x, y) {
 		strokeWeight(3);
 		// stroke('rgba(0,0,0,.3)');
 		// arc(0, 0, this.r*2, this.r*2, 0, TWO_PI);
+
 		stroke(lerpColor(color('#8BC34A'), color('#ef070e'), 1-this.life/200));
 		arc(0, 0, this.r*0.5, this.r*0.5, 0, TWO_PI*this.life/200);
 
@@ -631,19 +631,25 @@ function Torre(id, x, y) {
 	}
 
 	this.update = function() {
+		for (var i in this.pers) {
+			teste = this.pers[i].update();
+
+			if (teste) {
+				this.pers.splice(i);
+				break;
+			}
+		}
+
 		if (this.player==null) {
 			this.busca();
 		} else {
 			// seguir e atirar
 			this.seguir();
-			if (this.cadencia>=this.cadenciaMin) {
+			if (this.cadencia>=this.cadenciaMin && !this.teste) {
 				this.atirar();
 				this.cadencia=0;
+				// this.teste=true;
 			} else this.cadencia++;
-		}
-
-		for (var i in this.pers) {
-			this.pers[i].draw();
 		}
 	}
 
@@ -657,7 +663,14 @@ function Torre(id, x, y) {
 	}
 
 	this.atirar = function() {
-		this.pers.push(new Perseguidor(this.pos.x, this.pos.y+this.r*2, this.player, this.angle));
+		if (player.id==this.playerId) {
+			this.pers.push(new Perseguidor(this.pos.x, this.pos.y, this.player, this.playerId, this.angle, this.tiroCor));
+			data = {
+				id: this.id,
+				player: this.playerId
+			}
+			socket.emit('torreTiro', data);
+		}
 	}
 
 	this.busca = function() {
@@ -666,30 +679,40 @@ function Torre(id, x, y) {
 
 			if (dist(adv.pos.x, adv.pos.y, this.pos.x, this.pos.y)<this.raioBusca+adv.r) {
 				this.player = adv.pos;
+				this.playerId = adv.id;
 				data = {
 					torre: this.id,
 					player: adv.id
 				}
 				socket.emit('torreUpdate', data);
+				this.cadencia = 0;
 				break;
 			}
 		}
 	}
+
+	this.perseguir = function(id, pos) {
+		this.id = id;
+		this.player = pos;
+		this.cadencia = 0;
+	}
 }
 
-function Perseguidor(x, y, player, angle) {
+function Perseguidor(x, y, player, id, angle, cor) {
 	this.pos = createVector(x, y);
 	this.player = player;
-	this.vel;
+	this.vel = 3.5;
 	this.angle = angle;
-	this.r = 5;
+	this.r = 10;
+	this.id = id;
+	this.cor = cor;
 
 	this.draw = function() {
 		push();
 
 		translate(this.pos.x, this.pos.y);
-		rotate(this.angle);
-		fill('red');
+		rotate(this.angle+HALF_PI);
+		fill(this.cor);
 		noStroke();
 		triangle(0, -this.r, this.r, this.r, -this.r, this.r);
 
@@ -697,10 +720,32 @@ function Perseguidor(x, y, player, angle) {
 	}
 
 	this.update = function() {
-		// dx = mouseX - x;
-		// dy = mouseY - y;
-		// angle1 = atan2(dy, dx);
-		// x = mouseX - (cos(angle1) * segLength);
-		// y = mouseY - (sin(angle1) * segLength);
+		dif = this.player.copy();
+		dif.sub(this.pos);
+
+		this.angle = atan2(dif.y, dif.x);
+
+		speedx = cos(this.angle) * this.vel;
+  		speedy = sin(this.angle) * this.vel;
+
+  		this.pos.x += speedx;
+  		this.pos.y += speedy;
+
+  		teste = this.overlap();
+  		return teste;
+	}
+
+	this.overlap = function() {
+		adv = adversarios[this.id];
+
+		if (dist(this.pos.x, this.pos.y, adv.pos.x, adv.pos.y)<this.r+adv.r) {
+			if (this.id == player.id) 
+				player.life -= 10;
+			adversarios[this.id].life -= 10;
+			// console.log(adversarios[this.id].life);
+			return true;
+		}
+
+		return false;
 	}
 }

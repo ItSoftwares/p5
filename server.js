@@ -113,6 +113,7 @@ io.sockets.on('connection',
 	    });
 
 	    socket.on('atingiu', function(data) {
+	    	// console.log('Olha o tiro berg');
 	    	var j = jogadores[data.player];
 	    	j.life -= data.dano;
 	    });
@@ -122,6 +123,10 @@ io.sockets.on('connection',
 	    	torres[data.torre].player = data.player;
 
 	    	socket.broadcast.emit('torreUpdate', {id: data.id, player: data.player});
+	    });
+
+	    socket.on('torreTiro', function(data) {
+	    	socket.broadcast.emit('torreTiro', {id: data.id, player: data.player});
 	    });
 
 	    socket.on('disconnect', function() {

@@ -92,7 +92,7 @@ var cenario = [
 function setup() {
 	createCanvas(windowWidth, windowHeight);
 
-	socket = io.connect("http://192.168.1.107:3000");
+	socket = io.connect("http://localhost:3000");
 
 	player = new Player(52*ladrilho*mapaIncrease, 42*ladrilho*mapaIncrease);
 
@@ -152,10 +152,16 @@ function setup() {
 		// console.log(data);
 	});
 
+	socket.on('torreTiro', function(data) {
+		torres[data.id].pers.push(new Perseguidor(torres[data.id].pos.x, torres[data.id].pos.y, adversarios[data.player].pos, data.player, torres[data.id].angle, torres[data.id].tiroCor));
+		// console.log(data);
+	});
+
 	socket.on('torreUpdate', function(data) {
 		for (var i in torres) {
 			if (data.id==torres[i].id) {
-				torres[i].player = adversarios[data.id];
+				torres[i].perseguir(data.id, adversarios[data.id]);
+				// torres[i].player = adversarios[data.id];
 				break;
 			}
 		}
