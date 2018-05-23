@@ -24,6 +24,7 @@ function Base(letra, times, possuido) {
 function Torre(id, player) {
 	this.id = id;
 	this.player = player;
+	this.life = 200;
 }
 
 // Using express: http://expressjs.com/
@@ -74,15 +75,26 @@ io.sockets.on('connection',
 	// We are given a websocket object in our function
 	function(socket) {
 
-		console.log("We have a new client: " + socket.id);
+		// console.log("We have a new client: " + socket.id);
 
 	    socket.on('start',
 			function(data) {
-				console.log(socket.id + " " + data.x + " " + data.y);
+				// console.log(socket.id + " " + data.x + " " + data.y);
 				var jogador = new Player(socket.id, data.x, data.y, data.time, data.angle, data.life);
 				jogadores[socket.id] = jogador;
 
 				time = time==0?1:0;
+
+				data = {
+					jogadores: jogadores,
+					bases: bases,
+					torres: torres,
+					placar: placar,
+				};
+
+				io.to(socket.id).emit('inicio', data);
+
+				// socket.broadcast.emit('inicio', data);
 			}
 	    );
 
@@ -119,10 +131,13 @@ io.sockets.on('connection',
 	    });
 
 	    socket.on('torreUpdate', function(data) {
-	    	// console.log(torres);
-	    	torres[data.torre].player = data.player;
-
-	    	socket.broadcast.emit('torreUpdate', {id: data.id, player: data.player});
+	    	// console.log(data);
+	    	
+	    	if ('player' in data) {
+	    		torres[data.torre].player = data.player;
+	    		socket.broadcast.emit('torreUpdate', {torre: data.torre, player: data.player});
+	    	}
+	    	if ('life' in data) torres[data.torre].life = data.life;
 	    });
 
 	    socket.on('torreTiro', function(data) {

@@ -67,8 +67,18 @@ function Player(x, y) {
 
 			teste = this.balas[i].overlap();
 			teste2 = this.balas[i].atingiu();
+			teste3 = this.balas[i].torre();
 
-			if (this.balas[i].time<=0 || teste || teste2) this.balas.splice(i, 1);
+			if (this.balas[i].time<=0 || teste || teste2!=false || teste3!==false) this.balas.splice(i, 1);
+
+			if (teste3!==false) {
+			  	// console.log(teste3);
+				var data = {
+					torre: teste3,
+					life: torres[teste3].life
+				  };
+			  	socket.emit('torreUpdate', data);
+			}
 		}
 
 		var data = {
@@ -181,8 +191,11 @@ function Adversario(x, y, time, life, angle, id) {
 
 		push();
 		noStroke();
-		fill('#8BC34A99');
-		rect(this.pos.x - this.r, this.pos.y + this.r*1.5, this.r*2*this.life/100, this.r/4);
+		fill('#65656755');
+		rect(this.pos.x - this.r, this.pos.y + this.r*1.5, this.r*2, this.r/3);
+		fill(lerpColor(color('#8BC34A'), color('#ef070e'), 1-this.life/100));
+		rect(this.pos.x - this.r, this.pos.y + this.r*1.5, this.r*2*this.life/100, this.r/3);
+
 		translate(this.pos.x, this.pos.y);
 
 		rotate(this.angle);
@@ -211,8 +224,9 @@ function Adversario(x, y, time, life, angle, id) {
 
 			teste = this.balas[i].overlap();
 			teste2 = this.balas[i].atingiu();
+			teste3 = this.balas[i].torre();
 
-			if (this.balas[i].time<=0 || teste || teste2!=false) this.balas.splice(i, 1);
+			if (this.balas[i].time<=0 || teste || teste2!=false || teste3) this.balas.splice(i, 1);
 		}
 	}
 }
@@ -266,6 +280,23 @@ function Bala(dono, x, y, angle) {
 				adv.life -= this.dano;
 				if (adv.id==player.id) player.life-=this.dano;
 				return key;
+				break;
+			}
+		}
+		return tocou;
+	}
+
+	this.torre = function() {
+		tocou = false;
+		for (var key in torres) {
+			t = torres[key];
+
+			if (adversarios[this.dono].time==t.time) continue;
+			distancia = dist(this.pos.x, this.pos.y, t.pos.x, t.pos.y);
+			if (distancia<=t.r) {
+				t.dano(this.dano);
+
+				tocou = key;
 				break;
 			}
 		}
@@ -575,7 +606,7 @@ function Torre(id, x, y) {
 	this.id = id;
 	this.life = 200;
 	this.pos = createVector(x, y);
-	this.time = 1;
+	this.time = -1;
 	this.angle = 0;
 	this.cor = "#bbb";
 	this.corTime = 245;
@@ -588,12 +619,12 @@ function Torre(id, x, y) {
 	this.pers = [];
 	this.teste = false;
 	this.tiroCor;
+	this.lifeFinal = 200
 
 	this.draw = function() {
 		for (var i in this.pers) {
 			this.pers[i].draw();
 		}
-
 
 		push();
 
@@ -631,17 +662,20 @@ function Torre(id, x, y) {
 	}
 
 	this.update = function() {
+		this.life = lerp(this.life, this.lifeFinal, 0.05);
+
 		for (var i in this.pers) {
 			teste = this.pers[i].update();
 
 			if (teste) {
-				this.pers.splice(i);
+				this.pers.splice(i, 1);
 				break;
 			}
 		}
 
 		if (this.player==null) {
 			this.busca();
+			this.angle+=PI/90;
 		} else {
 			// seguir e atirar
 			this.seguir();
@@ -664,7 +698,8 @@ function Torre(id, x, y) {
 
 	this.atirar = function() {
 		if (player.id==this.playerId) {
-			this.pers.push(new Perseguidor(this.pos.x, this.pos.y, this.player, this.playerId, this.angle, this.tiroCor));
+			// console.log('teste');
+			this.pers.push(new Perseguidor(this.pos.x, this.pos.y, this, this.tiroCor));
 			data = {
 				id: this.id,
 				player: this.playerId
@@ -677,7 +712,7 @@ function Torre(id, x, y) {
 		for (var i in adversarios) {
 			adv = adversarios[i];
 
-			if (dist(adv.pos.x, adv.pos.y, this.pos.x, this.pos.y)<this.raioBusca+adv.r) {
+			if (dist(adv.pos.x, adv.pos.y, this.pos.x, this.pos.y)<this.raioBusca+adv.r && this.time!=adv.time) {
 				this.player = adv.pos;
 				this.playerId = adv.id;
 				data = {
@@ -685,6 +720,7 @@ function Torre(id, x, y) {
 					player: adv.id
 				}
 				socket.emit('torreUpdate', data);
+
 				this.cadencia = 0;
 				break;
 			}
@@ -692,20 +728,25 @@ function Torre(id, x, y) {
 	}
 
 	this.perseguir = function(id, pos) {
-		this.id = id;
+		this.playerId = id;
 		this.player = pos;
 		this.cadencia = 0;
 	}
+
+	this.dano = function(dano) {
+		this.lifeFinal -= dano;
+	}
 }
 
-function Perseguidor(x, y, player, id, angle, cor) {
+function Perseguidor(x, y, torre, cor) {
 	this.pos = createVector(x, y);
-	this.player = player;
-	this.vel = 3.5;
-	this.angle = angle;
+	this.vel = 4.5;
+	this.angle = torre.angle;
 	this.r = 10;
-	this.id = id;
 	this.cor = cor;
+	this.dano = 10;
+	this.playerId = torre.playerId;
+	this.player = adversarios[torre.playerId].pos;
 
 	this.draw = function() {
 		push();
@@ -720,6 +761,7 @@ function Perseguidor(x, y, player, id, angle, cor) {
 	}
 
 	this.update = function() {
+		if (!(this.playerId in adversarios)) return true;
 		dif = this.player.copy();
 		dif.sub(this.pos);
 
@@ -736,13 +778,16 @@ function Perseguidor(x, y, player, id, angle, cor) {
 	}
 
 	this.overlap = function() {
-		adv = adversarios[this.id];
+		adv = adversarios[this.playerId];
 
 		if (dist(this.pos.x, this.pos.y, adv.pos.x, adv.pos.y)<this.r+adv.r) {
-			if (this.id == player.id) 
-				player.life -= 10;
-			adversarios[this.id].life -= 10;
-			// console.log(adversarios[this.id].life);
+			// console.log(player.id);
+			if (this.playerId == player.id) {
+				// console.log('teste2');
+				player.life -= this.dano;
+			}
+			adversarios[this.playerId].life -= this.dano;
+			// console.log(this.id);
 			return true;
 		}
 

@@ -88,6 +88,7 @@ var cenario = [
 		[67*ladrilho, 67*ladrilho]
 	]
 ];
+var placar;
 
 function setup() {
 	createCanvas(windowWidth, windowHeight);
@@ -114,6 +115,34 @@ function setup() {
 	mapa = new Mapa(width*10/100, height*10/100);
 
 	// eventos do socket
+	
+	socket.on('inicio', function(data) {
+		for (var key in data.jogadores) {
+			adv = data.jogadores[key];
+			
+			adversarios[adv.id] = new Adversario(adv.x, adv.y, adv.time, adv.life, adv.angle, adv.id);
+		}
+
+		for (var key in data.bases) {
+			for (var i = 0; i < bases.length; i++) {
+				letra = bases[i].letra;
+				bases[i].times = data.bases[letra].times;
+				bases[i].possuido = data.bases[letra].possuido;
+			}
+		}
+
+		for (var key in data.torres) {
+			for (var i = 0; i < torres.length; i++) {
+				t = torres[i];
+				// console.log(data.torres[i]);
+				if ('player' in data.torres[i] && data.torres[i].player!=null && data.torres[i].player in adversarios) t.perseguir(data.torres[i].player, adversarios[data.torres[i].player].pos);
+				t.life = data.torres[i].life;
+			}
+		}
+		console.log(data);
+		placar = data.placar
+	});
+
 	socket.on('heartbeat', function(data) {
 		player.id = socket.id;
 
@@ -129,13 +158,13 @@ function setup() {
 
 			// if (key==player.id) player.life = adv.life;
 		}
-		if (carregar) console.log(data.jogadores);
+		// if (carregar) console.log(data.jogadores);
 		for (var key in data.bases) {
 			for (var i = 0; i < bases.length; i++) {
 				letra = bases[i].letra;
 				bases[i].times = data.bases[letra].times;
-				if (carregar) 
-					bases[i].possuido = data.bases[letra].possuido;
+				// if (carregar) 
+				// 	bases[i].possuido = data.bases[letra].possuido;
 			}
 		}
 
@@ -143,8 +172,14 @@ function setup() {
 	});
 
 	socket.on('saiu', function(data) {
-
+		console.log(data);
 		delete adversarios[data.id];
+
+		for (var key in torres) {
+			t = torres[key];
+
+			if (t.playerId==data.id) t.player=null;
+		}
 	});
 
 	socket.on('atirou', function(data) {
@@ -153,18 +188,13 @@ function setup() {
 	});
 
 	socket.on('torreTiro', function(data) {
-		torres[data.id].pers.push(new Perseguidor(torres[data.id].pos.x, torres[data.id].pos.y, adversarios[data.player].pos, data.player, torres[data.id].angle, torres[data.id].tiroCor));
-		// console.log(data);
+		pers = new Perseguidor(torres[data.id].pos.x, torres[data.id].pos.y, torres[data.id], torres[data.id].tiroCor);
+		torres[data.id].pers.push(pers);
 	});
 
 	socket.on('torreUpdate', function(data) {
-		for (var i in torres) {
-			if (data.id==torres[i].id) {
-				torres[i].perseguir(data.id, adversarios[data.id]);
-				// torres[i].player = adversarios[data.id];
-				break;
-			}
-		}
+		console.log(data);
+		torres[data.torre].perseguir(data.player, adversarios[data.player].pos);
 	});
 }
 
@@ -275,6 +305,7 @@ function criarCenario() {
 	bases.push(new Base(54.5*ladrilho, 54.5*ladrilho, 'E'));
 
 	torres.push(new Torre(0, 54.5*ladrilho, 42*ladrilho));
+	torres.push(new Torre(1, 42*ladrilho, 54.5*ladrilho));
 
 	ajustarTam();
 }
