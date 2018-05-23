@@ -68,8 +68,9 @@ function Player(x, y) {
 			teste = this.balas[i].overlap();
 			teste2 = this.balas[i].atingiu();
 			teste3 = this.balas[i].torre();
+			teste4 = this.balas[i].perseguidor();
 
-			if (this.balas[i].time<=0 || teste || teste2!=false || teste3!==false) this.balas.splice(i, 1);
+			if (this.balas[i].time<=0 || teste || teste2!=false || teste3!==false || teste4) this.balas.splice(i, 1);
 
 			if (teste3!==false) {
 			  	// console.log(teste3);
@@ -225,8 +226,9 @@ function Adversario(x, y, time, life, angle, id) {
 			teste = this.balas[i].overlap();
 			teste2 = this.balas[i].atingiu();
 			teste3 = this.balas[i].torre();
+			teste4 = this.balas[i].perseguidor();
 
-			if (this.balas[i].time<=0 || teste || teste2!=false || teste3) this.balas.splice(i, 1);
+			if (this.balas[i].time<=0 || teste || teste2!=false || teste3!=false || teste4) this.balas.splice(i, 1);
 		}
 	}
 }
@@ -298,6 +300,26 @@ function Bala(dono, x, y, angle) {
 
 				tocou = key;
 				break;
+			}
+		}
+		return tocou;
+	}
+
+	this.perseguidor = function() {
+		tocou = false;
+		for (var key in torres) {
+			t = torres[key];
+
+			for (var i in t.pers) {
+				p = t.pers[i];
+				if (adversarios[this.dono].time==t.time) continue;
+				distancia = dist(this.pos.x, this.pos.y, p.pos.x, p.pos.y);
+				if (distancia<=p.r) {
+					t.pers.splice(i, 1);
+
+					tocou = true;
+					break;
+				}
 			}
 		}
 		return tocou;
