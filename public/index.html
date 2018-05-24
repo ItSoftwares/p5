@@ -3,9 +3,8 @@
 		<meta name="viewport" content="width=device-width">
 		<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.6.1/p5.js"></script>
-		<script src="sketch.js"></script>
-		<script type="text/javascript" src="objetos.js"></script>
 		<link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+		<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
 		<link rel="stylesheet" type="text/css" href="css/index.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	</head>
@@ -22,44 +21,84 @@
 
 		<div id="xp">
 			<div class="container">
-				<div class="label">XP</div>
-				<span class="barra" data-w='50%'></span>
+				<div class="label">Lv 1</div>
+				<span class="barra transition" data-w='50%'></span>
 				<div class="qtd">0/50</div>
 			</div>
 		</div>
 
 		<section id="inicio">
 			
-			<div id="entrar-container">
-				<div id="sem-login" class="azul">
-					
+			<div id="entrar-container" class="transition">
+				<div id="sem-login" class="transition">
+					<h2>Guest</h2>
+
+					<form>
+						<div class="input">
+							<label>USERNAME</label>
+							<input type="text" name="guest" class="transition">
+						</div>
+
+						<button class="transition botao">Start</button>
+					</form>
 				</div>
 
-				<div id="login" class="branco">
+				<div id="login" class="transition">
 					<h2>LOGIN</h2>
 
 					<form>
 						<div class="input">
 							<label>USERNAME</label>
-							<input type="text" name="username">
+							<input type="text" name="username" class="transition" autocomplete="off" autofocus>
 						</div>
 
 						<div class="input">
 							<label>PASSWORD</label>
-							<input type="password" name="senha">
+							<input type="password" name="senha" class="transition">
 						</div>
 
 						<a id="esqueci">Forgot Password?</a>
 
-						<button class="botao">LOG IN</button>
+						<button class="botao transition">LOG IN</button>
 					</form>
 				</div>
 
-				<div id="cadastro" class="azul">
-					
+				<div id="cadastro" class="transition">
+					<h2>Sign Up</h2>
+
+					<form>
+						<div class="input">
+							<label>USERNAME</label>
+							<input type="text" name="username" class="transition" autocomplete="off" autofocus>
+						</div>
+
+						<div class="input">
+							<label>EMAIL</label>
+							<input type="text" name="email" class="transition" autocomplete="off">
+						</div>
+
+						<div class="input metade">
+							<label>PASSWORD</label>
+							<input type="password" name="senha" class="transition">
+						</div>
+
+						<div class="input metade">
+							<label>REPEAT PASSWORD</label>
+							<input type="password" id="repetirSenha" class="transition">
+						</div>
+
+						<button class="botao transition">Sign Up</button>
+					</form>
 				</div>
+
+				<span id="voltar" class="transition"><i class="fa fa-angle-left"></i> <b>Guest</b></span>
+				<span id="proximo" class="transition"><b>Sign Up</b> <i class="fa fa-angle-right"></i></span>
 			</div>
 
 		</section>
 	</body>
+
+	<script src="js/sketch.js"></script>
+	<script src="js/objetos.js"></script>
+	<script src="js/index.js"></script>
 </html>

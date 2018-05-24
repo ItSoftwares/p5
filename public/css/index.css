@@ -1,6 +1,7 @@
 :root {
   --corTime1: #3F51B5;
   --corTime2: #F44336;
+  --corPrincipal: #2196F3;
 }
 
 * {
@@ -9,6 +10,15 @@
     padding: 0;
     font-family: quicksand;
 }
+
+*:focus {
+	outline: none;
+}
+
+/* ====================== */
+/*          FEED          */
+/* ====================== */
+
 
 #feed {
 	position: fixed;
@@ -40,6 +50,11 @@
 #feed li .time2 {
 	color: var(--corTime2)
 }
+
+/* ====================== */
+/*         BARRA XP       */
+/* ====================== */
+
 
 #xp {
     position: fixed;
@@ -74,11 +89,10 @@
 	z-index: 1;
     background: #00A8FF;
     border-radius: 3px;
-    widows: 50%;
+    width: 0%;
     top: 0;
     left: 0;
     height: 100%;
-    transition: .3s ease;
 }
 
 #xp .qtd {
@@ -87,42 +101,159 @@
 	margin-right: 8px;
 }
 
-#inicio {
+.transition {
+	transition: .3s ease;
+}
 
+/* ====================== */
+/*          LOGIN         */
+/* ====================== */
+
+#inicio {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,.3);
+    /*display: flex;*/
+    display: none;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 #entrar-container {
-
+    height: 370px;
+	background: white;
+	width: 400px;
+	overflow: hidden;
+	border-radius: 3px 0 0 3px;
+    box-shadow: 0 0 5px rgba(0,0,0,.2);
+    position: relative;
 }
 
-#inicio > div {
-
+#entrar-container > div {
+    padding: 30px;
+    width: 100%;
+    box-sizing: border-box;
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
-.azul {
+#entrar-container > span {
+	position: absolute;
+	bottom: 30px;
+	font-size: .8em;
+	opacity: .6;
+	cursor: pointer;
+}
 
+#entrar-container > span:hover {
+	opacity: 1;
+}
+
+#entrar-container > span i {
+	
+}
+
+#entrar-container > span b {
+	font-weight: normal;
+}
+
+#entrar-container > span#voltar {
+	left: 30px;
+}
+
+#entrar-container > span#proximo {
+	right: 30px;
+}
+
+#entrar-container h2 {
+	font-size: 1.2em;
+	margin-bottom: 25px;
+	color: var(--corPrincipal);
 }
 
 .input {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: 15px;
+}
 
+.input.metade, .botao.metade {
+	width: 49.36%;
+    display: inline-flex;
 }
 
 .input label {
-	
+	font-size: .7em;
+    /*font-weight: bold;*/
+    color: #666;
+    margin-bottom: 7px;
 }
 
 .input input {
-	
+    width: 100%;
+    border-radius: 3px;
+    background: #ddd;
+    opacity: .7; 
+    padding: 10px;
+}
+
+.input input:focus {
+	background: white;
+	box-shadow: 0 0 3px rgba(0,0,0,.3);
+	opacity: 1 !important;
 }
 
 .botao {
-
+	background: var(--corPrincipal);
+    color: white;
+    width: 100%;
+    padding: 10px;
+    border-radius: 3px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
 }
 
-#login {
+.botao:focus, .botao:hover {
+	box-shadow: inset 0 -100px 0 rgba(0,0,0,.2);
+}
 
+.azul {
+	background: var(--corPrincipal) !important;
+}
+
+.azul .input label, .azul h2, .azul > span {
+	color: white  !important;
+}
+
+.azul .input input {
+    background: white;
+}
+
+.azul .botao {
+	background: white;
+	color: var(--corPrincipal);
 }
 
 #login #esqueci {
-	
+	float: right;
+    font-size: .8em;
+    text-decoration: none;
+    color: black;
+    opacity: .6;
+    cursor: pointer;
+}
+
+#sem-login {
+	left: -110%;
+	opacity: 0;
+}
+
+#cadastro {
+	left: 110%;
+	opacity: 0;
 }

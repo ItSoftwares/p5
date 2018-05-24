@@ -25,18 +25,16 @@ function Torre(id, player) {
 	this.id = id;
 	this.player = player;
 	this.life = 200;
+	this.estado = 1;
+	this.time = -1;
 }
 
-// Using express: http://expressjs.com/
 var express = require('express');
-// Create the app
+
 var app = express();
 
-// Set up the server
-// process.env.PORT is related to deploying on heroku
 var server = app.listen(process.env.PORT || 3000, listen);
 
-// This call back just tells us that the server has started
 function listen() {
 	var host = server.address().address;
 	var port = server.address().port;
@@ -55,8 +53,6 @@ function listen() {
 
 app.use(express.static('public'));
 
-// WebSocket Portion
-// WebSockets work with the HTTP server
 var io = require('socket.io')(server);
 
 setInterval(heartbeat, 33);
@@ -69,13 +65,16 @@ function heartbeat() {
   	io.sockets.emit('heartbeat', data);
 }
 
-// Register a callback function to run when we have an individual connection
-// This is run for each individual user that connects
 io.sockets.on('connection',
-	// We are given a websocket object in our function
 	function(socket) {
 
-		// console.log("We have a new client: " + socket.id);
+		qtd = [0, 0];
+		for (var key in jogadores) {
+			if (jogadores[key].time==null) continue
+			qtd[jogadores[key].time]++;
+		}
+
+		io.to(socket.id).emit('time', {time: qtd[0]>=qtd[1]?0:1});
 
 	    socket.on('start',
 			function(data) {
@@ -83,13 +82,11 @@ io.sockets.on('connection',
 				var jogador = new Player(socket.id, data.x, data.y, data.time, data.angle, data.life);
 				jogadores[socket.id] = jogador;
 
-				time = time==0?1:0;
-
 				data = {
 					jogadores: jogadores,
 					bases: bases,
 					torres: torres,
-					placar: placar,
+					placar: placar
 				};
 
 				io.to(socket.id).emit('inicio', data);
@@ -138,6 +135,13 @@ io.sockets.on('connection',
 	    		socket.broadcast.emit('torreUpdate', {torre: data.torre, player: data.player});
 	    	}
 	    	if ('life' in data) torres[data.torre].life = data.life;
+	    	if ('estado' in data) {
+	    		torres[data.torre].estado = data.estado;
+	    		if ('time' in data) 
+	    			torres[data.torre].time = data.time;
+	    	
+	    		socket.broadcast.emit('torreUpdate', data);
+	    	}
 	    });
 
 	    socket.on('torreTiro', function(data) {
@@ -157,6 +161,10 @@ io.sockets.on('connection',
 
 	    	delete jogadores[socket.id];
 	      	socket.broadcast.emit('saiu', {id: socket.id});
+	    });
+
+	    socket.on('feed', function() {
+
 	    });
   	}
 );
