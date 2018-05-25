@@ -106,6 +106,15 @@ io.sockets.on('connection',
 	      	}
 	    );
 
+	    socket.on('morreu',
+	      	function(data) {
+	      		if (!(socket.id in jogadores)) return;
+	    		var j = jogadores[socket.id];
+
+	    		socket.broadcast.emit('morreu', data);
+	      	}
+	    );
+
 	    socket.on('baseUpdate', function(data) {
 			bases[data.letra].times = JSON.parse(data.times);
 

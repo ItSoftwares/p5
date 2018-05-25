@@ -14,6 +14,7 @@ function Player(x, y) {
 	this.life = 100;
 	this.xp = 0;
 	this.level = 1;
+	this.nome = nickname;
 
 	this.draw = function() {
 		for (var i = 0; i < this.balas.length; i++) {
@@ -657,7 +658,7 @@ function Torre(id, x, y) {
 	this.player = null;
 	this.raioBusca = 8*ladrilho;
 	this.mostrar = false;
-	this.cadenciaMin = 60;
+	this.cadenciaMin = 30;
 	this.cadencia = 0;
 	this.pers = [];
 	this.teste = false;
@@ -862,11 +863,10 @@ function Perseguidor(x, y, torre, cor) {
 		translate(this.pos.x, this.pos.y);
 		rotate(this.angle+HALF_PI);
 		fill(this.cor);
-		noStroke();
+		// noStroke();
+		strokeWeight(4);
+		stroke('rgba(0,0,0,.3)');
 		triangle(this.pontos[0][0], this.pontos[0][1], this.pontos[1][0], this.pontos[1][1], this.pontos[2][0], this.pontos[2][1]);
-		// stroke('red');
-		// noFill();
-		// ellipse(0, 0, this.r*1.5);
 		pop();
 	}
 

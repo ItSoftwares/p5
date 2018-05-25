@@ -95,6 +95,9 @@ var jogando = false;
 var centro = {pos: null};
 var lv = [50, 150, 300, 600, 1500];
 var meuTime = null;
+var nickname = "";
+var velocidadeCentro = null;
+var sentido = "baixo";
 
 function setup() {
 	if (parado) return false;
@@ -271,6 +274,28 @@ function draw() {
 		player.update();
 		//MAP
 		mapa.draw();
+	} else {
+		if (velocidadeCentro==null) velocidadeCentro=createVector(0, 3);
+
+		if (centro.pos.y>96.5*ladrilho*mapaIncrease) { 
+			centro.pos.y = 96.5*ladrilho*mapaIncrease
+			sentido="direita";
+			velocidadeCentro.set(3, 0);
+		}
+		if (centro.pos.x>96.5*ladrilho*mapaIncrease) {
+			sentido="cima";
+			velocidadeCentro.set(0, -3);
+		}
+		if (centro.pos.y<12.5*ladrilho*mapaIncrease) {
+			sentido="esquerda";
+			velocidadeCentro.set(-3, 0);
+		}
+		if (centro.pos.x<12.5*ladrilho*mapaIncrease) {
+			sentido="baixo";
+			velocidadeCentro.set(0, 3);
+		}
+
+		centro.pos.add(velocidadeCentro);
 	}
 
 	temp = false;
@@ -280,6 +305,10 @@ function mouseMoved() {
 	if (parado || !jogando) return;
 	player.rotate();
 }
+
+// function windowResized() {
+// 	resizeCanvas(windowWidth, windowHeight);
+// }
 
 function criarCenario() {
 	// chão
@@ -327,6 +356,8 @@ function criarCenario() {
 
 	torres.push(new Torre(0, 54.5*ladrilho, 42*ladrilho));
 	torres.push(new Torre(1, 42*ladrilho, 54.5*ladrilho));
+	torres.push(new Torre(2, 67*ladrilho, 54.5*ladrilho));
+	torres.push(new Torre(3, 54.5*ladrilho, 67*ladrilho));
 
 	ajustarTam();
 }
