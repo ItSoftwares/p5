@@ -2,11 +2,11 @@ function Player(x, y) {
 	this.pos = createVector(x, y);
 	this.vel = createVector();
 	this.upgrades = [1,1,1,1,1];
-	this.cadenciaMin = 15/this.upgrades[0]; // + .2 por upgrade
-	this.vidaBala = 25*this.upgrades[1]; // + .5 por vez
-	this.velocity = 10*this.upgrades[2]; // + .2 por vez
-	this.recuperacao = 0.01*this.upgrades[3]; // + .01 por vez
-	this.danoBala = 10*this.upgrades[4]; // + .3 por vez
+	this.cadenciaMin = 15/this.upgrades[0]; // + .1 por upgrade
+	this.vidaBala = 25*this.upgrades[1]; // + .2 por vez
+	this.velocity = 10*this.upgrades[2]; // + .1 por vez
+	this.recuperacao = 0.02*this.upgrades[3]; // + .2 por vez
+	this.danoBala = 10*this.upgrades[4]; // + .1 por vez
 	this.r = 20;
 	this.b = 2;
 	this.angle = 0;
@@ -231,11 +231,11 @@ function Player(x, y) {
 		if (this.pontos==0) return true;
 		console.log(index);
 
-		if (index==0) valor = 0.2;
-		if (index==1) valor = 0.5;
-		if (index==2) valor = 0.2;
-		if (index==3) valor = 0.01;
-		if (index==4) valor = 0.3;
+		if (index==0) valor = 0.1;
+		if (index==1) valor = 0.2;
+		if (index==2) valor = 0.1;
+		if (index==3) valor = 0.02;
+		if (index==4) valor = 0.1;
 
 		this.upgrades[index] += valor;
 
@@ -1017,4 +1017,12 @@ function Perseguidor(x, y, torre, cor) {
 function Numero(x, y, tipo) {
 	this.pos = createVector(x, y);
 	this.tipo = tipo;
+
+	this.draw = function() {
+		
+	}
+
+	this.update = function() {
+		
+	}
 }

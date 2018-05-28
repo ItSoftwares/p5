@@ -4,6 +4,8 @@ var torres = {};
 var time = 0;
 var placar = [0, 0];
 
+var rooms = 10;
+
 function Player(id, x, y, time, angle, life, nome) {
 	this.id = id;
 	this.x = x;
@@ -47,8 +49,12 @@ function listen() {
 	bases['C'] = new Base("C", {0: [], 1: []}, {0: 0, 1: 0});
 	bases['D'] = new Base("D", {0: [], 1: []}, {0: 0, 1: 0});
 	bases['E'] = new Base("E", {0: [], 1: []}, {0: 0, 1: 0});
+	bases['F'] = new Base("F", {0: [], 1: []}, {0: 0, 1: 0});
+	bases['G'] = new Base("G", {0: [], 1: []}, {0: 0, 1: 0});
+	bases['H'] = new Base("H", {0: [], 1: []}, {0: 0, 1: 0});
+	bases['I'] = new Base("I", {0: [], 1: []}, {0: 0, 1: 0});
 
-	for (var i = 0; i < 4; i++) {
+	for (var i = 0; i < 8; i++) {
 		torres[i] = new Torre(i, null);
 	}
 }
@@ -67,8 +73,31 @@ function heartbeat() {
   	io.sockets.emit('heartbeat', data);
 }
 
+function verificarSalas(numero) {
+	sala = "";
+	escolhido = false;
+
+	sala = 'room'+numero;
+	clientes = io.in(sala).clients(function(error, c) {
+		if (error) console.log('error');
+		else {
+			clientes = c;
+
+			qtd = clientes.length;
+
+			if (qtd<40) {
+				console.log(sala);
+				return sala;
+			} else {
+				if (numero<rooms) verificarSalas(numero);
+			}
+		}
+	});
+}
+
 io.sockets.on('connection',
 	function(socket) {
+		socket.join(verificarSalas(0));
 
 		qtd = [0, 0];
 		for (var key in jogadores) {
@@ -76,7 +105,8 @@ io.sockets.on('connection',
 			qtd[jogadores[key].time]++;
 		}
 
-		io.to(socket.id).emit('time', {time: qtd[0]>qtd[1]?1:0});
+
+		io.to(socket.id).emit('time', {time: qtd[0]>qtd[1]?1:0, sala: sala});
 
 	    socket.on('start',
 			function(data) {
@@ -114,7 +144,7 @@ io.sockets.on('connection',
 	      		if (!(data.id in jogadores)) return;
 	    		delete jogadores[data.id];
 
-	    		socket.broadcast.emit('morreu', data);
+	    		socket.broadcast.to(socket.request.headers.referer).emit('morreu', data);
 	      	}
 	    );
 
@@ -130,7 +160,7 @@ io.sockets.on('connection',
 
 	    socket.on('atirou', function(data) {
 	    	// console.log('olha o tiro berg');
-	    	socket.broadcast.emit('atirou', data);
+	    	socket.broadcast.to(socket.request.headers.referer).emit('atirou', data);
 	    });
 
 	    socket.on('atingiu', function(data) {
@@ -144,7 +174,7 @@ io.sockets.on('connection',
 	    	
 	    	if ('player' in data) {
 	    		torres[data.torre].player = data.player;
-	    		socket.broadcast.emit('torreUpdate', {torre: data.torre, player: data.player});
+	    		socket.broadcast.to(socket.request.headers.referer).emit('torreUpdate', {torre: data.torre, player: data.player});
 	    	}
 	    	if ('life' in data) torres[data.torre].life = data.life;
 	    	if ('estado' in data) {
@@ -152,12 +182,12 @@ io.sockets.on('connection',
 	    		if ('time' in data) 
 	    			torres[data.torre].time = data.time;
 	    	
-	    		socket.broadcast.emit('torreUpdate', data);
+	    		socket.broadcast.to(socket.request.headers.referer).emit('torreUpdate', data);
 	    	}
 	    });
 
 	    socket.on('torreTiro', function(data) {
-	    	socket.broadcast.emit('torreTiro', {id: data.id, player: data.player});
+	    	socket.broadcast.to(socket.request.headers.referer).emit('torreTiro', {id: data.id, player: data.player});
 	    });
 
 	    socket.on('disconnect', function() {
@@ -172,17 +202,17 @@ io.sockets.on('connection',
 	    	}
 
 	    	delete jogadores[socket.id];
-	      	socket.broadcast.emit('saiu', {id: socket.id});
+	      	socket.broadcast.to(socket.request.headers.referer).emit('saiu', {id: socket.id});
 	    });
 
 	    socket.on('feed', function(data) {
 	    	console.log(data);
-	    	socket.broadcast.emit('feed', data);
+	    	socket.broadcast.to(socket.request.headers.referer).emit('feed', data);
 	    });
 
 	    socket.on('verJogadores', function(data) {
 	    	console.log(jogadores);
-	    	socket.broadcast.emit('verJogadores', {j: jogadores});
+	    	socket.broadcast.to(socket.request.headers.referer).emit('verJogadores', {j: jogadores});
 	    })
   	}
 );

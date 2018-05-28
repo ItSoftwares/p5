@@ -10,7 +10,6 @@ var paredes = []
 var bases = [];
 var torres = [];
 var fontes = {};
-var ladrilho = 40;
 var adversarios = {};
 var zoom = 1;
 var carregar = true;
@@ -20,75 +19,6 @@ var times = [
 	{cor: '#F44336'}
 ];
 var player = {id: null};
-var cenario = [
-	[
-		[0, 0],
-		[0, 25*ladrilho],
-		[8*ladrilho, 25*ladrilho],
-		[8*ladrilho, 84*ladrilho],
-		[0, 84*ladrilho],
-		[0, 109*ladrilho],
-		[25*ladrilho, 109*ladrilho],
-		[25*ladrilho, 101*ladrilho],
-		[84*ladrilho, 101*ladrilho],
-		[84*ladrilho, 109*ladrilho],
-		[109*ladrilho, 109*ladrilho],
-		[109*ladrilho, 84*ladrilho],
-		[101*ladrilho, 84*ladrilho],
-		[101*ladrilho, 25*ladrilho],
-		[109*ladrilho, 25*ladrilho],
-		[109*ladrilho, 0],
-		[84*ladrilho, 0],
-		[84*ladrilho, 8*ladrilho],
-		[25*ladrilho, 8*ladrilho],
-		[25*ladrilho, 0],
-		[0, 0]
-	],
-	[
-		[25*ladrilho, 25*ladrilho],
-		[17*ladrilho, 25*ladrilho],
-		[17*ladrilho, 50*ladrilho],
-		[42*ladrilho, 50*ladrilho],
-		[42*ladrilho, 42*ladrilho],
-		[50*ladrilho, 42*ladrilho],
-		[50*ladrilho, 17*ladrilho],
-		[25*ladrilho, 17*ladrilho],
-		[25*ladrilho, 25*ladrilho]
-	],
-	[
-		[84*ladrilho, 25*ladrilho],
-		[92*ladrilho, 25*ladrilho],
-		[92*ladrilho, 50*ladrilho],
-		[67*ladrilho, 50*ladrilho],
-		[67*ladrilho, 42*ladrilho],
-		[59*ladrilho, 42*ladrilho],
-		[59*ladrilho, 17*ladrilho],
-		[84*ladrilho, 17*ladrilho],
-		[84*ladrilho, 25*ladrilho]
-	],
-	[
-		[42*ladrilho, 67*ladrilho],
-		[50*ladrilho, 67*ladrilho],
-		[50*ladrilho, 92*ladrilho],
-		[25*ladrilho, 92*ladrilho],
-		[25*ladrilho, 84*ladrilho],
-		[17*ladrilho, 84*ladrilho],
-		[17*ladrilho, 59*ladrilho],
-		[42*ladrilho, 59*ladrilho],
-		[42*ladrilho, 67*ladrilho]
-	],
-	[
-		[67*ladrilho, 67*ladrilho],
-		[59*ladrilho, 67*ladrilho],
-		[59*ladrilho, 92*ladrilho],
-		[84*ladrilho, 92*ladrilho],
-		[84*ladrilho, 84*ladrilho],
-		[92*ladrilho, 84*ladrilho],
-		[92*ladrilho, 59*ladrilho],
-		[67*ladrilho, 59*ladrilho],
-		[67*ladrilho, 67*ladrilho]
-	]
-];
 var placar;
 var parado = false;
 var jogando = false;
@@ -103,7 +33,7 @@ function setup() {
 	if (parado) return false;
 	createCanvas(windowWidth, windowHeight);
 
-	criarCenario();
+	criarCenario2();
 	zoom = height/672;
 
 	socket = io.connect("http://localhost:3000");
@@ -227,7 +157,7 @@ function setup() {
 }
 
 function play() {
-	player = new Player(52*ladrilho*mapaIncrease, 42*ladrilho*mapaIncrease);
+	player = new Player(5*ladrilho*mapaIncrease, 5*ladrilho*mapaIncrease);
 	centro.pos = player.pos;
 	jogando = true;
 
@@ -333,7 +263,7 @@ function mouseMoved() {
 // 	resizeCanvas(windowWidth, windowHeight);
 // }
 
-function criarCenario() {
+function criarCenario1() {
 	// chão
 	places.push(new Lugar(0, 0, 25*ladrilho, 25*ladrilho)); // A
 	places.push(new Lugar(8*ladrilho, 25*ladrilho, 9*ladrilho, 25*ladrilho));
@@ -358,13 +288,13 @@ function criarCenario() {
 	places.push(new Lugar(50*ladrilho, 17*ladrilho, 9*ladrilho, 25*ladrilho)); //Central TOP
 
 	// paredes
-	for (var i = 0; i < cenario.length; i++) {
-		for (var j = 0; j < cenario[i].length-1; j++) {
+	for (var i = 0; i < cenario1.length; i++) {
+		for (var j = 0; j < cenario1[i].length-1; j++) {
 			index = paredes.push(new Parede(
-				cenario[i][j][0], 
-				cenario[i][j][1], 
-				cenario[i][j+1][0], 
-				cenario[i][j+1][1]));
+				cenario1[i][j][0], 
+				cenario1[i][j][1], 
+				cenario1[i][j+1][0], 
+				cenario1[i][j+1][1]));
 
 			paredes[index-1].calcTipo();
 		}
@@ -381,6 +311,44 @@ function criarCenario() {
 	torres.push(new Torre(1, 42*ladrilho, 54.5*ladrilho));
 	torres.push(new Torre(2, 67*ladrilho, 54.5*ladrilho));
 	torres.push(new Torre(3, 54.5*ladrilho, 67*ladrilho));
+
+	ajustarTam();
+}
+
+function criarCenario2() {
+	places.push(new Lugar(0, 0, 109*ladrilho, 109*ladrilho)); // todo
+
+	for (var i = 0; i < cenario2.length; i++) {
+		for (var j = 0; j < cenario2[i].length-1; j++) {
+			index = paredes.push(new Parede(
+				cenario2[i][j][0], 
+				cenario2[i][j][1], 
+				cenario2[i][j+1][0], 
+				cenario2[i][j+1][1]));
+
+			paredes[index-1].calcTipo();
+		}
+	}
+
+	// bases
+	bases.push(new Base(12.5*ladrilho, 12.5*ladrilho, 'A'));
+	bases.push(new Base(12.5*ladrilho, 96.5*ladrilho, 'B'));
+	bases.push(new Base(96.5*ladrilho, 12.5*ladrilho, 'C'));
+	bases.push(new Base(96.5*ladrilho, 96.5*ladrilho, 'D'));
+	bases.push(new Base(54.5*ladrilho, 54.5*ladrilho, 'E'));
+	bases.push(new Base(109/2*ladrilho, 109/4*ladrilho, 'F'));
+	bases.push(new Base(109/4*ladrilho, 109/2*ladrilho, 'G'));
+	bases.push(new Base(109/2*ladrilho, 109/4*3*ladrilho, 'H'));
+	bases.push(new Base(109/4*3*ladrilho, 109/2*ladrilho, 'I'));
+
+	torres.push(new Torre(0, 54.5*ladrilho, 42*ladrilho));
+	torres.push(new Torre(1, 42*ladrilho, 54.5*ladrilho));
+	torres.push(new Torre(2, 67*ladrilho, 54.5*ladrilho));
+	torres.push(new Torre(3, 54.5*ladrilho, 67*ladrilho));
+	torres.push(new Torre(4, 109/4*ladrilho, 109/4*ladrilho));
+	torres.push(new Torre(5, 109/4*ladrilho, 109/4*3*ladrilho));
+	torres.push(new Torre(6, 109/4*3*ladrilho, 109/4*3*ladrilho));
+	torres.push(new Torre(7, 109/4*3*ladrilho, 109/4*ladrilho));
 
 	ajustarTam();
 }
