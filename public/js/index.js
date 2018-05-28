@@ -54,13 +54,25 @@ $("#proximo").click(function() {
 $("#sem-login form").submit(function(e) {
 	e.preventDefault();
 
-	$("#feed,#xp").show();
+	$("#feed,#xp, #placar").show();
 
 	nickname = $(this).find('[name=guest]').val();
 
 	$("#inicio").hide();
 	play();
-})
+});
+
+$("#upgrades button").click(function() {
+	index = $(this).closest('li').data('index');
+
+	teste = player.up(index);
+
+	if (teste===true) esconderUpgrades();
+	else { 
+		temp = $(this).closest('li').find('span').text()
+		$(this).closest('li').find('span').text(Number(temp)+1);
+	}
+});
 
 function xp(xp) {
 	// console.log(lv);
@@ -81,6 +93,29 @@ function xp(xp) {
 	$("#xp .label").text("Lv "+(i+1))
 
 	return i+1;
+}
+
+function atualizarPlacar() {
+	// placar
+}
+
+function chamarUpgrades() {
+	$("#upgrades").addClass("aberto");
+}
+
+function esconderUpgrades() {
+	$("#upgrades").removeClass("aberto");
+}
+
+function mostrarInicio() {
+	$("#inicio").show();
+	$("#feed, #xp, #placar").hide();
+	$("#feed ul").children().remove();
+}
+
+function adicionarFeed(mensagem) {
+	if ($("#feed ul li").length>=5) $("#feed ul li:first-child").remove();
+	$("#feed ul").append(mensagem);
 }
 
 function chamarPopupInfo(mensagem, tempo) {

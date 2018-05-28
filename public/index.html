@@ -12,11 +12,21 @@
 	<body ng-controller="posicao" id="posicao">
 		<div id="feed">
 			<ul>
-				<li><span class="time1">Izac</span> kills <span class="time2">Fulano</span></li>
+				<!-- <li><span class="time1">Izac</span> kills <span class="time2">Fulano</span></li>
 				<li><span class="time2">Izac</span> kills <span class="time1">Fulano</span></li>
 				<li><span class="time1">Izac</span> kills <span class="time2">Fulano</span></li>
-				<li><span class="time2">Izac</span> kills <span class="time1">Fulano</span></li>
+				<li><span class="time2">Izac</span> kills <span class="time1">Fulano</span></li> -->
 			</ul>
+		</div>
+
+		<div id="placar">
+			<div class="time1 barra"></div>
+			<div class="time2 barra"></div>
+
+			<span class="time1 pontos">0</span>
+			<span class="time2 pontos">0</span>
+
+			<span class="time">05:00</span>
 		</div>
 
 		<div id="xp">
@@ -96,13 +106,13 @@
 			</div>
 		</section>
 
-		<div id="upgrades">
+		<div id="upgrades" class="transition">
 			<ul>
-				<li id="cadencia"><span>1</span> - Cadencia Tiro <button class='botao transition' disabled>+</button></li>
-				<li id="distancia"><span>1</span> - Distancia Tiro <button class='botao transition' disabled>+</button></li>
-				<li id="velocidade"><span>1</span> - Velocidade <button class='botao transition' disabled>+</button></li>
-				<li id="recuperacao"><span>1</span> - Recuperação <button class='botao transition' disabled>+</button></li>
-				<li id="dano"><span>1</span> - Dano <button class='botao transition' disabled>+</button></li>
+				<li id="cadencia" data-index='0'><span>1</span> - Cadencia Tiro <button class='botao transition'>+</button></li>
+				<li id="distancia" data-index='1'><span>1</span> - Distancia Tiro <button class='botao transition'>+</button></li>
+				<li id="velocidade" data-index='2'><span>1</span> - Velocidade <button class='botao transition'>+</button></li>
+				<li id="recuperacao" data-index='3'><span>1</span> - Recuperação <button class='botao transition'>+</button></li>
+				<li id="dano" data-index='4'><span>1</span> - Dano <button class='botao transition'>+</button></li>
 			</ul>
 		</div>
 	</body>

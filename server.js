@@ -4,7 +4,7 @@ var torres = {};
 var time = 0;
 var placar = [0, 0];
 
-function Player(id, x, y, time, angle, life) {
+function Player(id, x, y, time, angle, life, nome) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
@@ -13,6 +13,8 @@ function Player(id, x, y, time, angle, life) {
 	this.time = time;
 	this.angle = angle;
 	this.life = life;
+	this.nome = nome;
+	this.upgrades = [1,1,1,1,1];
 }
 
 function Base(letra, times, possuido) {
@@ -74,12 +76,12 @@ io.sockets.on('connection',
 			qtd[jogadores[key].time]++;
 		}
 
-		io.to(socket.id).emit('time', {time: qtd[0]>=qtd[1]?0:1});
+		io.to(socket.id).emit('time', {time: qtd[0]>qtd[1]?1:0});
 
 	    socket.on('start',
 			function(data) {
 				// console.log(socket.id + " " + data.x + " " + data.y);
-				var jogador = new Player(socket.id, data.x, data.y, data.time, data.angle, data.life);
+				var jogador = new Player(socket.id, data.x, data.y, data.time, data.angle, data.life, data.nome);
 				jogadores[socket.id] = jogador;
 
 				data = {
@@ -103,13 +105,14 @@ io.sockets.on('connection',
 		        j.y = data.y;
 		        j.angle = data.angle;
 		        j.life = data.life;
+		        // j.upgrades = data.upgrades;
 	      	}
 	    );
 
 	    socket.on('morreu',
 	      	function(data) {
-	      		if (!(socket.id in jogadores)) return;
-	    		var j = jogadores[socket.id];
+	      		if (!(data.id in jogadores)) return;
+	    		delete jogadores[data.id];
 
 	    		socket.broadcast.emit('morreu', data);
 	      	}
@@ -172,8 +175,14 @@ io.sockets.on('connection',
 	      	socket.broadcast.emit('saiu', {id: socket.id});
 	    });
 
-	    socket.on('feed', function() {
-
+	    socket.on('feed', function(data) {
+	    	console.log(data);
+	    	socket.broadcast.emit('feed', data);
 	    });
+
+	    socket.on('verJogadores', function(data) {
+	    	console.log(jogadores);
+	    	socket.broadcast.emit('verJogadores', {j: jogadores});
+	    })
   	}
 );

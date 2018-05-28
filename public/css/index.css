@@ -25,7 +25,7 @@
     font-size: .9em;
     user-select: none;
     cursor: default;
-    opacity: 0;
+    /*opacity: 0;*/
     display: none;
 }
 
@@ -55,7 +55,6 @@
 /* ====================== */
 /*         BARRA XP       */
 /* ====================== */
-
 
 #xp {
     position: fixed;
@@ -114,8 +113,12 @@
 
 #upgrades {
 	position: fixed;
-	left: 10px;
+	left: -220px;
 	bottom: 10px;
+}
+
+#upgrades.aberto {
+	left: 10px;
 }
 
 #upgrades ul {
@@ -310,6 +313,70 @@
 	left: 110%;
 	opacity: 0;
 	display: none;
+}
+
+/* ====================== */
+/*          PLACAR        */
+/* ====================== */
+
+#placar {
+	width: 200px;
+	position: fixed;
+	top: 10px;
+	left: 0;
+	right: 0;
+	margin: auto;
+	/*background: rgba(0,0,0,.15);*/
+    border-radius: 3px;
+    /*overflow: hidden;*/
+    height: 10px;
+	background: var(--corTime2);
+	opacity: .5;
+	display: none;
+}
+
+#placar .barra {
+	width: 50%;
+	height: 100%;
+}
+
+#placar .barra.time1 {
+	background: var(--corTime1);
+	border-radius: 3px 0 0 3px;
+}
+
+#placar .barra.time2 {
+	border-radius: 0 3px 3px 0;
+	display: none;
+}
+
+#placar .pontos {
+	position: absolute;
+	font-size: .7em;
+	font-weight: bold;
+	bottom: 0;
+}
+
+#placar .pontos.time1 {
+	color: var(--corTime1);
+	right: 105%;
+}
+
+#placar .pontos.time2 {
+	color: var(--corTime2);
+	left: 105%;
+}
+
+#placar .time {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    right: 0;
+    font-weight: bold;
+    font-size: .8em;
+    margin: auto;
+    width: 100px;
+    text-align: center;
 }
 
 /* ======================= */

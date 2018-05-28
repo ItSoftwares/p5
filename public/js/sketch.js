@@ -119,7 +119,7 @@ function setup() {
 		for (var key in data.jogadores) {
 			adv = data.jogadores[key];
 			
-			adversarios[adv.id] = new Adversario(adv.x, adv.y, adv.time, adv.life, adv.angle, adv.id);
+			adversarios[adv.id] = new Adversario(adv.x, adv.y, adv.time, adv.life, adv.angle, adv.id, adv.nome);
 		}
 
 		for (var key in data.bases) {
@@ -148,12 +148,13 @@ function setup() {
 		for (var key in data.jogadores) {
 			adv = data.jogadores[key];
 			if (adv.id!=undefined && !(adv.id in adversarios))
-				adversarios[adv.id] = new Adversario(adv.x, adv.y, adv.time, adv.life, adv.angle, adv.id);
+				adversarios[adv.id] = new Adversario(adv.x, adv.y, adv.time, adv.life, adv.angle, adv.id, adv.nome);
 
 			adversarios[key].pos.x = adv.x;
 			adversarios[key].pos.y = adv.y;
 			adversarios[key].angle = adv.angle;
 			adversarios[key].life = adv.life;
+			// adversarios[key].atualizarUpgrades(adv.upgrades);
 
 			// if (key==player.id) player.life = adv.life;
 		}
@@ -182,11 +183,12 @@ function setup() {
 	});
 
 	socket.on('atirou', function(data) {
-		adversarios[data.dono].balas.push(new Bala(data.dono, data.x, data.y, data.angle));
+		adversarios[data.dono].balas.push(new Bala(data.dono, data.x, data.y, data.angle, data.vidaBala, data.danoBala));
 		// console.log(data);
 	});
 
 	socket.on('torreTiro', function(data) {
+		if (!(torres[data.id].playerId in adversarios)) return;
 		pers = new Perseguidor(torres[data.id].pos.x, torres[data.id].pos.y, torres[data.id], torres[data.id].tiroCor);
 		torres[data.id].pers.push(pers);
 	});
@@ -202,6 +204,26 @@ function setup() {
 			}
 		}
 	});
+
+	socket.on('verJogadores', function(data) {		
+		console.log(data);
+	});
+
+	socket.on('morreu', function(data) {
+		console.log(data);		
+		delete adversarios[data.id];
+
+		for (var key in torres) {
+			t = torres[key];
+
+			if (t.playerId==data.id) t.player=null;
+		}
+	});
+
+	socket.on('feed', function(data) {	
+		console.log(data);	
+		adicionarFeed(data);
+	});
 }
 
 function play() {
@@ -214,7 +236,8 @@ function play() {
 		y: player.pos.y,
 		angle: player.angle,
 		life: player.life,
-		time: player.time
+		time: player.time,
+		nome: player.nome,
 	};
 
 	socket.emit('start', data);
@@ -402,4 +425,8 @@ function calcularLinhas() {
 		console.log(key+" - "+places[key].linha);
 	} 
 	console.log(ccc);
+}
+
+function verJogadores() {
+	socket.emit('verJogadores', 'teste');
 }
